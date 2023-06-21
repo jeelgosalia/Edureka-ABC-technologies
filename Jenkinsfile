@@ -21,10 +21,10 @@ pipeline
                 build 'package'
             }
          }
-        stage('deploy-on-doccont')
+        stage('container-deployment')
         {
             steps{
-                build 'deploy-on-doccont'
+                build 'container-deployment'
             }
         }
        
