@@ -1,0 +1,67 @@
+---
+- name: Build docker image & deploy on docker container
+  gather_facts: true
+  hosts: localhost
+  tasks:
+    - name: Stop the container, if running
+      ignore_errors: yes
+      docker_container:
+       name: ABCtechnology
+       image: jeelgosalia/abc-technology:latest
+       state: stopped
+    - name: Remove container
+      ignore_errors: yes
+      docker_container:
+       name: ABCtechnology
+       image: jeelgosalia/abc-technology:latest
+       state: absent
+    - name: Remove image
+      ignore_errors: yes
+      docker_image:
+       state: absent
+       name: jeelgosalia/abc-technology
+       tag: latest
+    - name: Build the image on local
+      connection: local
+      docker_image:
+       name: jeelgosalia/abc-technology
+       source: build
+       build:
+        path: .
+       tag: latest
+    - name: Log into DockerHub
+      connection: local
+      docker_login:
+       username: jeelgosalia
+       password: Abcd1234
+       email: jeelgosalia@gmail.com
+    - name: Tag and push to docker hub on local
+      connection: local
+      docker_image:
+       name: jeelgosalia/abc-technology:latest
+       repository: jeelgosalia/abc-technology
+       push: yes
+       source: local
+    - name: Remove image
+      connection: local
+      ignore_errors: yes
+      docker_image:
+       state: absent
+       name: jeelgosalia/abc-technology
+       tag: latest
+    - name: Log into DockerHub
+      docker_login:
+       username: jeelgosalia
+       password: Abcd1234
+       email: jeelgosalia@gmail.com
+    - name: Pull image from dockerhub repo
+      docker_image:
+       name: jeelgosalia/abc-technology:latest
+       source: pull
+    - name: Create the container
+      docker_container:
+       name: ABCtechnology
+       image: jeelgosalia/abc-technology:latest
+       ports:
+        - "80:8080"
+...
