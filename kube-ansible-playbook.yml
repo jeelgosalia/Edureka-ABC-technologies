@@ -1,0 +1,47 @@
+---
+- name: Build docker image & deploy on docker container
+  gather_facts: true
+  hosts: localhost
+  tasks:
+    - name: Build the image on local
+      docker_image:
+       name: jeelgosalia/abc-technology
+       source: build
+       build:
+        path: .
+       tag: latest
+    - name: Log into DockerHub
+      docker_login:
+       username: jeelgosalia
+       password: Abcd1234
+       email: jeelgosalia@gmail.com
+    - name: Tag and push to docker hub on local
+      docker_image:
+       name: jeelgosalia/abc-technology:latest
+       repository: jeelgosalia/abc-technology
+       push: yes
+       source: local
+    - name: Remove image
+      ignore_errors: yes
+      docker_image:
+       state: absent
+       name: jeelgosalia/abc-technology
+       tag: latest
+    - name: Log into DockerHub
+      docker_login:
+       username: jeelgosalia
+       password: Abcd1234
+       email: jeelgosalia@gmail.com
+    - name: Pull image from dockerhub repo
+      docker_image:
+       name: jeelgosalia/abc-technology:latest
+       source: pull
+   
+        
+    - name: install Pod network
+      become: yes
+      become_user: edureka
+      shell: kubectl apply -f https://raw.githubusercontent.com/jeelgosalia/Edureka-ABC-technologies/main/kube-deployment.yml
+      args:
+        chdir: $HOME
+...
